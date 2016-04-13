@@ -1,0 +1,71 @@
+Index: postfix/makedefs
+===================================================================
+--- postfix.orig/makedefs	2016-03-01 05:01:28.255116315 -0700
++++ postfix/makedefs	2016-03-01 05:01:28.251116447 -0700
+@@ -561,10 +561,10 @@
+ 		SYSLIBS="$SYSLIBS -ldl"
+ 		: ${SHLIB_SUFFIX=.so}
+ 		: ${SHLIB_CFLAGS=-fPIC}
+-		: ${SHLIB_LD="${CC-gcc} -shared"' -Wl,-soname,${LIB}'}
++		: ${SHLIB_LD="${CC-gcc} -shared"' -Wl,-soname,$(LIB:.so.1.0.1=.so.1)'}
+ 		: ${SHLIB_RPATH='-Wl,--enable-new-dtags -Wl,-rpath,${SHLIB_DIR}'}
+ 		: ${SHLIB_ENV="LD_LIBRARY_PATH=`pwd`/lib"}
+-		: ${PLUGIN_LD="${CC-gcc} -shared"}
++		: ${PLUGIN_LD="${CC-gcc} -shared"' -Wl,-soname,$(@:.so.1.0.1=.so.1)'}
+ 		;;
+      GNU.0*|GNU/kFreeBSD.*)
+      		SYSTYPE=GNU0
+Index: postfix/src/dns/Makefile.in
+===================================================================
+--- postfix.orig/src/dns/Makefile.in	2016-03-01 05:01:28.255116315 -0700
++++ postfix/src/dns/Makefile.in	2016-03-01 05:01:28.251116447 -0700
+@@ -63,7 +63,7 @@
+ $(LIB):	$(OBJS)
+ 	$(AR) $(ARFL) $(LIB) $?
+ 	$(RANLIB) $(LIB)
+-	$(SHLIB_LD) $(SHLIB_RPATH) -o $(LIB) $(OBJS) $(SHLIB_SYSLIBS)
++	$(SHLIB_LD) $(SHLIB_RPATH) -o $(LIB) $(OBJS) $(SHLIB_SYSLIBS) -L../../lib -lpostfix-util -lpostfix-global
+ 
+ $(LIB_DIR)/$(LIB): $(LIB)
+ 	cp $(LIB) $(LIB_DIR)
+Index: postfix/src/global/Makefile.in
+===================================================================
+--- postfix.orig/src/global/Makefile.in	2016-03-01 05:01:28.255116315 -0700
++++ postfix/src/global/Makefile.in	2016-03-01 05:01:28.251116447 -0700
+@@ -142,7 +142,7 @@
+ $(LIB):	$(OBJS)
+ 	$(AR) $(ARFL) $(LIB) $?
+ 	$(RANLIB) $(LIB)
+-	$(SHLIB_LD) $(SHLIB_RPATH) -o $(LIB) $(OBJS) $(SHLIB_SYSLIBS)
++	$(SHLIB_LD) $(SHLIB_RPATH) -o $(LIB) $(OBJS) $(SHLIB_SYSLIBS) -L../../lib -lpostfix-util
+ 
+ $(LIB_DIR)/$(LIB): $(LIB)
+ 	cp $(LIB) $(LIB_DIR)
+Index: postfix/src/master/Makefile.in
+===================================================================
+--- postfix.orig/src/master/Makefile.in	2016-03-01 05:01:28.255116315 -0700
++++ postfix/src/master/Makefile.in	2016-03-01 05:01:28.251116447 -0700
+@@ -44,7 +44,8 @@
+ $(LIB):	$(LIB_OBJ)
+ 	$(AR) $(ARFL) $(LIB) $?
+ 	$(RANLIB) $(LIB)
+-	$(SHLIB_LD) $(SHLIB_RPATH) -o $(LIB) $(LIB_OBJ) $(SHLIB_SYSLIBS)
++	$(SHLIB_LD) $(SHLIB_RPATH) -o $(LIB) $(LIB_OBJ) $(SHLIB_SYSLIBS) \
++		-L../../lib -lpostfix-global -lpostfix-util
+ 
+ $(LIB_DIR)/$(LIB): $(LIB)
+ 	cp $(LIB) $(LIB_DIR)/$(LIB)
+Index: postfix/src/tls/Makefile.in
+===================================================================
+--- postfix.orig/src/tls/Makefile.in	2016-03-01 05:01:28.255116315 -0700
++++ postfix/src/tls/Makefile.in	2016-03-01 05:01:28.251116447 -0700
+@@ -44,7 +44,8 @@
+ $(LIB):	$(OBJS)
+ 	$(AR) $(ARFL) $(LIB) $?
+ 	$(RANLIB) $(LIB)
+-	$(SHLIB_LD) $(SHLIB_RPATH) -o $(LIB) $(OBJS) $(SHLIB_SYSLIBS)
++	$(SHLIB_LD) $(SHLIB_RPATH) -o $(LIB) $(OBJS) $(SHLIB_SYSLIBS) \
++		-L../../lib -lpostfix-dns -lpostfix-global -lpostfix-util
+ 
+ $(LIB_DIR)/$(LIB): $(LIB)
+ 	cp $(LIB) $(LIB_DIR)
