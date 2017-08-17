@@ -110,7 +110,7 @@ configure_instance() {
 		    fi
 		    mkdir --parent ${dest_dir}
 		    # handle files in subdirectories
-		    (cd "$ca_path" && find . -name '*.pem' -print0 | cpio -0pdL --quiet "$dest_dir") 2>/dev/null || 
+		    (cd "$ca_path" && find . -name '*.pem' -not -xtype l -print0 | cpio -0pdL --quiet "$dest_dir") 2>/dev/null ||
 		        (log_failure_msg failure copying certificates; exit 1)
 		    c_rehash "$dest_dir" >/dev/null 2>&1
 		    if [ "$new" = 1 ]; then

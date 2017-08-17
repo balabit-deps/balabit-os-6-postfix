@@ -599,6 +599,14 @@ if [ -x /usr/sbin/update-inetd ]; then
     update-inetd --disable smtp </dev/null >/dev/null 2>&1 || true
 fi
 
+# Make sure we have main/master.cf.proto for multi-inst (#838528)
+if [ ! -f /etc/postfix/main.cf.proto ]; then
+    cp /usr/share/postfix/main.cf.dist /etc/postfix/main.cf.proto
+fi
+if [ ! -f /etc/postfix/master.cf.proto ]; then
+    cp /usr/share/postfix/master.cf.dist /etc/postfix/master.cf.proto
+fi
+
 if [ "$mailer" != "No configuration" ] || [ -f /etc/postfix/main.cf ]; then
     if [ -n "$NEWALIASES" ]; then
 	echo "Running newaliases"
