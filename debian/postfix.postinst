@@ -123,15 +123,15 @@ fix_master() {
 	    echo "$line" >> ${MASTER}
 	fi
     done << @@EOF@@
-flush     unix  n       -       -       1000?   0       flush
+flush     unix  n       -       y       1000?   0       flush
 proxymap  unix  -       -       n       -       -       proxymap
-trace     unix  -       -       -       -       0       bounce
-verify    unix  -       -       -       -       1       verify
-tlsmgr    unix  -       -       -       1000?   1       tlsmgr
-anvil     unix  -       -       -       -       1       anvil
-scache    unix  -       -       -       -       1       scache
-discard   unix  -       -       -       -       -       discard
-retry     unix  -       -       -       -       -       error
+trace     unix  -       -       y       -       0       bounce
+verify    unix  -       -       y       -       1       verify
+tlsmgr    unix  -       -       y       1000?   1       tlsmgr
+anvil     unix  -       -       y       -       1       anvil
+scache    unix  -       -       y       -       1       scache
+discard   unix  -       -       y       -       -       discard
+retry     unix  -       -       y       -       -       error
 @@EOF@@
 
     if ! grep -qE '^relay[[:space:]]' ${MASTER}; then
@@ -321,19 +321,20 @@ if [ "$mailer" != "No configuration" ]; then	# [
 
     # Fix master.cf for compat changes in 3.0.  See Debian bug #816172
     # Also fix myhostname if needed.
-    for dir in /etc/postfix $(postconf -hn multi_instance_directories); do
-	hname=$(postconf -h -c "$dir" myhostname)
-	if [ ${hname} = ${hname%.*} ]; then
-	    echo "setting myhostname=$myhostname in ${dir}"
-	    set_postconf -c "$dir" myhostname=$myhostname
-	fi
-	SRV=$(postconf -c "$dir" -F '*/*/chroot'| sed -n '/ = -$/s/ =.*$//p')
-	for SERVICE in $SRV; do
-	    echo "setting explicit chroot on ${dir}:$SERVICE"
-	    set_postconf -F -c "$dir" $SERVICE=y
-	done
-    done
-
+    if `dpkg --compare-versions "$2" lt 3.1.0-1~`; then
+	for dir in /etc/postfix $(postconf -hn multi_instance_directories); do
+	    hname=$(postconf -h -c "$dir" myhostname)
+	    if [ ${hname} = ${hname%.*} ]; then
+	        echo "setting myhostname=$myhostname in ${dir}"
+	        set_postconf -c "$dir" myhostname=$myhostname
+	    fi
+	    SRV=$(postconf -c "$dir" -F '*/*/chroot'| sed -n '/ = -$/s/ =.*$//p')
+	    for SERVICE in $SRV; do
+	        echo "setting explicit chroot on ${dir}:$SERVICE"
+	        set_postconf -F -c "$dir" $SERVICE=y
+	    done
+        done
+    fi
     if [ -n "$NEWCONF" ]; then
 	fset_all_changed true
 	alias_maps=hash:/etc/aliases

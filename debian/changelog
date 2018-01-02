@@ -1,3 +1,12 @@
+postfix (3.1.0-3ubuntu0.3) xenial; urgency=medium
+
+  * Only run post 3.0 master.cf fixup if upgrading from version before
+    the fix. (LP: #1727699)
+    This is a pick of 37b37e93 from Debian packaging repo at
+    https://git.launchpad.net/postfix
+
+ -- Christian Ehrhardt <christian.ehrhardt@canonical.com>  Tue, 02 Jan 2018 13:48:25 +0100
+
 postfix (3.1.0-3ubuntu0.2) xenial; urgency=medium
 
   * Ignore broken symbolic links during ca_cert check (Closes LP: #1305232)
