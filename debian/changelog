@@ -1,3 +1,9 @@
+postfix (3.1.0-3ubuntu0.4) xenial; urgency=medium
+
+  * d/p/fix_tls_deploy-server-cert.patch: handle missing opt arg (LP: #1881196)
+
+ -- Lucas Kanashiro <kanashiro@ubuntu.com>  Fri, 10 Jul 2020 18:14:41 -0300
+
 postfix (3.1.0-3ubuntu0.3) xenial; urgency=medium
 
   * Only run post 3.0 master.cf fixup if upgrading from version before
